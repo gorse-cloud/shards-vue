@@ -1,6 +1,6 @@
 {
   "name": "@gorse/shards-vue",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "packageManager": "pnpm@10.33.0",
   "publishConfig": {
     "access": "public"
@@ -94,7 +94,7 @@
     "lodash.xor": "^4.5.0",
     "nouislider": "^11.1.0",
     "popper.js": "^1.14.4",
-    "shards-ui": "^2.1.0",
+    "@gorse/shards-ui": "^3.0.1",
     "vue-clickaway": "^2.2.2",
     "vuejs-datepicker": "^1.5.3"
   },

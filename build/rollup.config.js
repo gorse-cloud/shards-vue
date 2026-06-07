@@ -33,7 +33,7 @@ const bundleName = packageName.split('/').pop()
 const banner = `/*
 * Shards Vue v${version} (https://designrevision.com/downloads/shards-vue/)
 * Based on: Bootstrap ${dependencies.bootstrap} (https://getbootstrap.com)
-* Based on: Shards ${dependencies['shards-ui']} (https://designrevision.com/downloads/shards/)
+* Based on: Shards ${dependencies['@gorse/shards-ui']} (https://designrevision.com/downloads/shards/)
 * Copyright 2017-${year} DesignRevision (https://designrevision.com)
 * Copyright 2017-${year} Catalin Vasile (http://catalin.me)
 */`
@@ -41,7 +41,7 @@ const banner = `/*
 const globals = {
     bootstrap: 'bootstrap',
     nouislider: 'noUiSlider',
-    'shards-ui': 'Shards',
+    '@gorse/shards-ui': 'Shards',
     'vue-clickaway': 'vueClickaway',
     'vuejs-datepicker': 'VueDatepicker'
 }

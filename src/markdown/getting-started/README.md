@@ -29,7 +29,7 @@ import ShardsVue from '@gorse/shards-vue'
 
 // Import base styles (Bootstrap and Shards)
 import 'bootstrap/dist/css/bootstrap.css'
-import 'shards-ui/dist/css/shards.css'
+import '@gorse/shards-ui/dist/css/shards.css'
 
 Vue.use(ShardsVue);
 ```
@@ -43,7 +43,7 @@ import Vue from 'vue'
 
 // Import base styles (Bootstrap and Shards)
 import 'bootstrap/dist/css/bootstrap.css'
-import 'shards-ui/dist/css/shards.css'
+import '@gorse/shards-ui/dist/css/shards.css'
 
 import { Button } from '@gorse/shards-vue/src/components'
 Vue.use(Button)
