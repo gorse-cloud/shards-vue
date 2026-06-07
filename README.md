@@ -27,7 +27,7 @@ Shards Vue is a free, beautiful and modern Vue.js UI kit <br /> based on <a href
 
 ### Getting Started
 
-Getting started with Shards Vue is fairly simple. You can download Shards Vue via the official website, here on GitHub as a release package or by using a package manager such as Yarn or NPM.
+Getting started with Shards Vue is fairly simple. You can download Shards Vue via the official website, here on GitHub as a release package or by using a package manager such as pnpm, Yarn or npm.
 
 * [Official Website](https://designrevision.com/download/shards-vue)
 * [Release Package](https://github.com/DesignRevision/shards-vue/releases)
@@ -36,13 +36,16 @@ Getting started with Shards Vue is fairly simple. You can download Shards Vue vi
 
 ### Quick Start
 
-You can install Shards Vue via Yarn or NPM.
+You can install Shards Vue via pnpm, Yarn or npm.
 
 ```bash
+// Install via pnpm
+pnpm add shards-vue
+
 // Install via Yarn
 yarn add shards-vue
 
-// Install via NPM
+// Install via npm
 npm i shards-vue
 ```
 
@@ -112,13 +115,13 @@ export default {
 
 ### File Sizes
 
-You can also run `yarn bundlesize` at any time to check the compiled file sizes.
+You can also run `pnpm bundlesize` at any time to check the compiled file sizes.
 
 | File Name                | Size (min.gz) |
 |--------------------------|---------------|
-| shards-vue.common.min.js | 46.29KB       |
-| shards-vue.esm.min.js    | 46.24KB       |
-| shards-vue.umd.min.js    | 39.3KB        |
+| shards-vue.common.min.js | 47.97KB       |
+| shards-vue.esm.min.js    | 48.05KB       |
+| shards-vue.umd.min.js    | 43.16KB       |
 
 <br />
 
@@ -137,10 +140,9 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduc
 If you'd like to fix a bug or work on a feature, make sure to follow the steps below in order to setup the development environment on your local machine:
 
 1. Clone the repository.
-2. Run `yarn` to install all required dependencies.
-3. Install Vue CLI and the CLI service globally by running: `npm i -g @vue/cli @vue/cli-service-global` or `yarn global add @vue/cli-service-global`.
-4. Run `yarn watch` in order to kickstart the server and run the sandbox with hot reloading.
-5. Refer to the `sandbox/Sandbox.vue` file for more details.
+2. Run `pnpm install` to install all required dependencies.
+3. Run `pnpm watch` in order to kickstart the server and run the sandbox with hot reloading.
+4. Refer to the `sandbox/Sandbox.vue` file for more details.
 
 <br />
 

@@ -37,6 +37,14 @@ const banner = `/*
 * Copyright 2017-${year} Catalin Vasile (http://catalin.me)
 */`
 
+const globals = {
+    bootstrap: 'bootstrap',
+    nouislider: 'noUiSlider',
+    'shards-ui': 'Shards',
+    'vue-clickaway': 'vueClickaway',
+    'vuejs-datepicker': 'VueDatepicker'
+}
+
 module.exports = {
     input: PATHS.INPUT,
     external: Object.keys(dependencies).filter(dep => {
@@ -45,6 +53,13 @@ module.exports = {
     plugins: [
         vuePlugin({
             compileTemplate: true,
+            style: {
+                preprocessOptions: {
+                    scss: {
+                        silenceDeprecations: ['legacy-js-api']
+                    }
+                }
+            },
             cssModules: {
                 generateScopedName: '[name]__[local]'
             },
@@ -74,6 +89,7 @@ module.exports = {
             format: 'umd',
             name: camelize(name),
             modulename: camelize(name),
+            globals,
             file: path.resolve(PATHS.DIST, name + '.umd.js'),
             sourcemap: true
         },

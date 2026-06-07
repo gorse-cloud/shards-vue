@@ -7,7 +7,12 @@ const UglifyJS = require('uglify-js')
 const UglifyES = require('uglify-es')
 const PATHS = require('./paths')
 
-let Uglifier = UglifyJS
+function stripTrailingWhitespace(content) {
+    return content
+        .replace(/\r\n/g, '\n')
+        .replace(/\r/g, '\n')
+        .replace(/[ \t]+$/gm, '')
+}
 
 glob(path.resolve(PATHS.DIST + '/*.js'), {}, function(err, files) {
     if (err) {
@@ -19,9 +24,9 @@ glob(path.resolve(PATHS.DIST + '/*.js'), {}, function(err, files) {
             return
         }
 
-        if (path.basename(file).indexOf('.esm.js')) {
-            Uglifier = UglifyES
-        }
+        const Uglifier = path.basename(file).indexOf('.esm.js') !== -1
+            ? UglifyES
+            : UglifyJS
 
         // Define minified file path
         let minFilePath = path.basename(file).replace('.js', '.min.js')
@@ -33,6 +38,8 @@ glob(path.resolve(PATHS.DIST + '/*.js'), {}, function(err, files) {
 
         // Minify
         let _c = fs.readFileSync(file, 'utf8')
+        _c = stripTrailingWhitespace(_c)
+        fs.writeFileSync(file, _c)
         _c = Uglifier.minify(_c, { mangle: true, compress: true, sourceMap: true })
 
         // Write minified file and sourcemap

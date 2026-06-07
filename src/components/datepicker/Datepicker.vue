@@ -205,6 +205,8 @@ export default {
 </script>
 
 <style lang="scss">
+    @use "sass:color";
+
     $white: #fff;
     $black: #000;
 
@@ -328,7 +330,7 @@ export default {
                     background: $color-primary !important;
                     color: $white;
                     &:hover {
-                        background: darken($color-primary, 5) !important;
+                        background: color.adjust($color-primary, $lightness: -5%) !important;
                         border-color: $border-color !important;
                     }
                 }
@@ -338,7 +340,7 @@ export default {
                     color: $white;
 
                     &:hover {
-                        background: darken($color-primary, 5) !important;
+                        background: color.adjust($color-primary, $lightness: -5%) !important;
                         border-color: $border-color !important;
                     }
 
@@ -386,5 +388,4 @@ export default {
         }
     }
 </style>
-
 

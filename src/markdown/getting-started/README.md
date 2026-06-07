@@ -6,13 +6,16 @@ Shards Vue is really easy to get started with. Make sure to follow the guide bel
 
 ## Installation
 
-If you are using a module bundler such as [Webpack](https://webpack.js.org/) or [Rollup](https://rollupjs.org/), you can install **Shards Vue** via [Yarn](https://yarnpkg.com/en/) or [NPM](https://www.npmjs.com/) and import Shards Vue directly into your project.
+If you are using a module bundler such as [Webpack](https://webpack.js.org/) or [Rollup](https://rollupjs.org/), you can install **Shards Vue** via [pnpm](https://pnpm.io/), [Yarn](https://yarnpkg.com/en/) or [npm](https://www.npmjs.com/) and import Shards Vue directly into your project.
 
 ```bash
+// Install via pnpm
+pnpm add shards-vue
+
 // Install via Yarn
 yarn add shards-vue
 
-// Install via NPM
+// Install via npm
 npm i shards-vue
 ```
 
