@@ -25,6 +25,7 @@ export default {
     components: {
         dButtonClose
     },
+    emits: ['update:modelValue', 'update:show', 'input', ALERT_EVENTS.DISMISSED, ALERT_EVENTS.DISMISS_COUNTDOWN],
     props: {
         /**
          * Alert color theme.
@@ -51,14 +52,14 @@ export default {
         /**
          * Show state or duration.
          */
+        modelValue: {
+            type: [Boolean, Number, String],
+            default: undefined
+        },
         show: {
             type: [Boolean, Number, String],
             default: false
         }
-    },
-    model: {
-        prop: 'show',
-        event: 'input'
     },
     data() {
         return {
@@ -67,19 +68,22 @@ export default {
         }
     },
     watch: {
-        show() {
+        computedShowValue() {
             this.showChanged();
         }
     },
     mounted() {
         this.showChanged();
     },
-    destroyed() {
+    beforeUnmount() {
         this.clearCounter();
     },
     computed: {
+        computedShowValue() {
+            return this.modelValue !== undefined ? this.modelValue : this.show
+        },
         computedShow() {
-            return !this.dismissed && (this.timer || this.show);
+            return !this.dismissed && (this.timer || this.computedShowValue);
         }
     },
     methods: {
@@ -101,10 +105,11 @@ export default {
              * @type {Boolean}
              */
             this.$emit(ALERT_EVENTS.DISMISSED);
+            this.$emit('update:modelValue', false);
+            this.$emit('update:show', false);
             this.$emit('input', false);
 
-            if (typeof this.show === 'boolean') {
-                this.$emit('input', false);
+            if (typeof this.computedShowValue === 'boolean') {
                 return;
             }
 
@@ -115,6 +120,8 @@ export default {
              * @type {Number}
              */
             this.$emit(ALERT_EVENTS.DISMISS_COUNTDOWN, 0);
+            this.$emit('update:modelValue', 0);
+            this.$emit('update:show', 0);
             this.$emit('input', 0);
         },
 
@@ -122,10 +129,10 @@ export default {
             this.clearCounter();
             this.dismissed = false;
 
-            if (typeof this.show === 'boolean' || this.show === null || this.show === 0)
+            if (typeof this.computedShowValue === 'boolean' || this.computedShowValue === null || this.computedShowValue === 0)
                 return
 
-            let dismissTimer = this.show;
+            let dismissTimer = this.computedShowValue;
             this.timer = setInterval(() => {
                 if (dismissTimer < 1) {
                     this.dismiss();
@@ -141,6 +148,8 @@ export default {
                  * @type {Number}
                  */
                 this.$emit(ALERT_EVENTS.DISMISS_COUNTDOWN, dismissTimer);
+                this.$emit('update:modelValue', dismissTimer);
+                this.$emit('update:show', dismissTimer);
                 this.$emit('input', dismissTimer);
             }, 1000);
         }

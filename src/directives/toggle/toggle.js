@@ -1,17 +1,20 @@
 import target from '../../utils/target'
+import { unbindTargets } from '../../utils/target'
 import { COLLAPSE_EVENTS } from '../../utils/constants'
 import { setAttr, addClass, removeClass } from '../../utils'
+import { getEventBus } from '../../utils/events'
 
 const inBrowser = typeof window !== 'undefined'
 const DR_TOGGLE = '__DRTOGGLE'
 
 export default {
-    bind(element, binding, vnode) {
-        const targets = target(vnode, binding, { click: true }, ({ targets, vnode }) => {
-            targets.forEach(target => vnode.context.$root.$emit(COLLAPSE_EVENTS.TOGGLE, target));
+    beforeMount(element, binding) {
+        const bus = getEventBus(binding.instance)
+        const targets = target(element, binding, { click: true }, ({ targets }) => {
+            targets.forEach(target => bus.$emit(COLLAPSE_EVENTS.TOGGLE, target));
         });
 
-        if (inBrowser && vnode.context && targets.length > 0) {
+        if (inBrowser && targets.length > 0) {
             setAttr(element, 'aria-controls', targets.join(' '))
             setAttr(element, 'aria-expanded', 'false')
 
@@ -31,15 +34,17 @@ export default {
                     addClass(element, 'collapsed');
                 }
             }
-            vnode.context.$root.$on(COLLAPSE_EVENTS.STATE, element[DR_TOGGLE])
+            bus.$on(COLLAPSE_EVENTS.STATE, element[DR_TOGGLE])
         }
     },
-    unbind(element, binding, vnode) {
+    unmounted(element, binding) {
+        unbindTargets(element, binding, { click: true })
+
         if (!element[DR_TOGGLE]) {
             return
         }
 
-        vnode.context.$root.$off(COLLAPSE_EVENTS.STATE, element[DR_TOGGLE])
+        getEventBus(binding.instance).$off(COLLAPSE_EVENTS.STATE, element[DR_TOGGLE])
         element[DR_TOGGLE] = null
     }
 }

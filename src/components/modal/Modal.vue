@@ -11,7 +11,7 @@
             centered ? `modal-dialog-centered` : '',
         ]"
         role="document"
-        v-on-clickaway="away">
+        v-click-away="away">
         <div class="modal-content">
             <slot />
         </div>
@@ -21,12 +21,14 @@
 </template>
 
 <script>
-import { mixin as clickAwayMixin } from 'vue-clickaway';
+import clickAway from '../../directives/click-away'
 import { MODAL_EVENTS } from '../../utils/constants';
+import { getEventBus } from '../../utils/events';
 
 export default {
     name: 'd-modal',
-    mixins: [clickAwayMixin],
+    directives: { clickAway },
+    emits: ['close'],
     props: {
         /**
          * The component tag.
@@ -76,7 +78,7 @@ export default {
          *
          * Triggered when the modal is hidden.
          */
-        this.$root.$emit(MODAL_EVENTS.HIDDEN)
+        getEventBus(this).$emit(MODAL_EVENTS.HIDDEN)
     }
   },
 };

@@ -16,7 +16,9 @@ Using the `<d-input-group>` component you can easily extend form controls by add
     <!-- Using Slots -->
     <d-input-group class="mb-2">
         <d-input placeholder="Total Amount"/>
-        <d-input-group-text slot="append">$</d-input-group-text>
+        <template #append>
+            <d-input-group-text>$</d-input-group-text>
+        </template>
     </d-input-group>
 
     <!-- Using Components -->
@@ -55,9 +57,13 @@ If you'd like better control over your input group's contents, you can also use 
 ```html
 
 <d-input-group>
-    <d-input-group-text slot="prepend">Total Amount</d-input-group-text>
+    <template #prepend>
+        <d-input-group-text>Total Amount</d-input-group-text>
+    </template>
     <d-input placeholder="Total Amount"/>
-    <d-input-group-text slot="append">$</d-input-group-text>
+    <template #append>
+        <d-input-group-text>$</d-input-group-text>
+    </template>
 </d-input-group>
 
 <!-- input-group-3.vue -->
@@ -119,18 +125,22 @@ You can also use the `<d-input-group-addon>` component with the `append` or `pre
   <d-row>
     <d-col lg="6">
       <d-input-group>
-        <d-input-group-text slot="prepend">
-            <input type="checkbox" aria-label="Checkbox for following text input">
-        </d-input-group-text>
+        <template #prepend>
+            <d-input-group-text>
+                <input type="checkbox" aria-label="Checkbox for following text input">
+            </d-input-group-text>
+        </template>
         <d-form-input type="text" aria-label="Text input with checkbox" />
       </d-input-group>
     </d-col>
 
     <d-col lg="6">
       <d-input-group>
-        <d-input-group-text slot="prepend">
-            <input type="radio" aria-label="Radio for following text input">
-        </d-input-group-text>
+        <template #prepend>
+            <d-input-group-text>
+                <input type="radio" aria-label="Radio for following text input">
+            </d-input-group-text>
+        </template>
         <d-form-input type="text" aria-label="Text input with radio button" />
       </d-input-group>
     </d-col>
@@ -177,9 +187,11 @@ You can create seamless input groups using the `seamless` prop.
 ```html
 
 <d-input-group seamless>
-    <d-input-group-text slot="prepend">
-        <fa :icon="['fas', 'dollar-sign']" />
-    </d-input-group-text>
+    <template #prepend>
+        <d-input-group-text>
+            <fa :icon="['fas', 'dollar-sign']" />
+        </d-input-group-text>
+    </template>
     <d-input placeholder="Total Amount"/>
 </d-input-group>
 

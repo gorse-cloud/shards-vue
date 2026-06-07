@@ -2,9 +2,7 @@
 
 const path = require('path')
 const fs = require('fs')
-const glob = require('glob')
-const UglifyJS = require('uglify-js')
-const UglifyES = require('uglify-es')
+const { minify } = require('terser')
 const PATHS = require('./paths')
 
 function stripTrailingWhitespace(content) {
@@ -14,19 +12,15 @@ function stripTrailingWhitespace(content) {
         .replace(/[ \t]+$/gm, '')
 }
 
-glob(path.resolve(PATHS.DIST + '/*.js'), {}, function(err, files) {
-    if (err) {
-        throw err
-    }
+async function optimize() {
+    const files = fs.readdirSync(PATHS.DIST)
+        .filter(file => file.endsWith('.js') && file.indexOf('.min.js') === -1)
+        .map(file => path.resolve(PATHS.DIST, file))
 
-    files.forEach(file => {
+    for (const file of files) {
         if (path.basename(file).indexOf('.min.js') !== -1) {
-            return
+            continue
         }
-
-        const Uglifier = path.basename(file).indexOf('.esm.js') !== -1
-            ? UglifyES
-            : UglifyJS
 
         // Define minified file path
         let minFilePath = path.basename(file).replace('.js', '.min.js')
@@ -40,10 +34,28 @@ glob(path.resolve(PATHS.DIST + '/*.js'), {}, function(err, files) {
         let _c = fs.readFileSync(file, 'utf8')
         _c = stripTrailingWhitespace(_c)
         fs.writeFileSync(file, _c)
-        _c = Uglifier.minify(_c, { mangle: true, compress: true, sourceMap: true })
+        const sourceMapPath = `${file}.map`
+        const sourceMapContent = fs.existsSync(sourceMapPath)
+            ? fs.readFileSync(sourceMapPath, 'utf8')
+            : null
+
+        _c = await minify(_c, {
+            compress: true,
+            mangle: true,
+            sourceMap: {
+                content: sourceMapContent,
+                filename: path.basename(minFilePath),
+                url: path.basename(minMapPath)
+            }
+        })
 
         // Write minified file and sourcemap
         fs.writeFileSync(minFilePath, _c.code)
         fs.writeFileSync(minMapPath, _c.map)
-    })
+    }
+}
+
+optimize().catch(err => {
+    console.error(err)
+    process.exit(1)
 })

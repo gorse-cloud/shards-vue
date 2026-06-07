@@ -2,50 +2,52 @@
 /* UTILITY FUNCTIONS
 /*--------------------------------------------------------------------------*/
 
-// Install a Vue plugin if Vue is available on the window object.
+import { installEventBus } from './events'
+
+// Preserve legacy module side-effect calls without auto-installing in Vue 3.
 export function vueUse(VuePlugin) {
-    if (typeof window !== 'undefined' && window.Vue) {
-        window.Vue.use(VuePlugin)
-    }
+    return VuePlugin
 }
 
 // Register a component plugin.
-export function registerComponent(Vue, name, definition) {
-    Vue._shards_vue_components_ = Vue._shards_vue_components_ || {}
-    const loaded = Vue._shards_vue_components_[name]
+export function registerComponent(app, name, definition) {
+    installEventBus(app)
+    app._shards_vue_components_ = app._shards_vue_components_ || {}
+    const loaded = app._shards_vue_components_[name]
 
     if (!loaded && definition && name) {
-        Vue._shards_vue_components_[name] = true
-        Vue.component(name, definition)
+        app._shards_vue_components_[name] = true
+        app.component(name, definition)
     }
 
     return loaded
 }
 
 // Register a group of components.
-export function registerComponents(Vue, components) {
+export function registerComponents(app, components) {
     for (let component in components) {
-        registerComponent(Vue, component, components[component])
+        registerComponent(app, component, components[component])
     }
 }
 
 // Register a directive as being loaded. returns true if directive plugin already registered
-export function registerDirective(Vue, name, definition) {
-    Vue._shards_vue_directives_ = Vue._shards_vue_directives_ || {}
-    const loaded = Vue._shards_vue_directives_[name]
+export function registerDirective(app, name, definition) {
+    installEventBus(app)
+    app._shards_vue_directives_ = app._shards_vue_directives_ || {}
+    const loaded = app._shards_vue_directives_[name]
 
     if (!loaded && definition && name) {
-        Vue._shards_vue_directives_[name] = true
-        Vue.directive(name, definition)
+        app._shards_vue_directives_[name] = true
+        app.directive(name, definition)
     }
 
     return loaded
 }
 
 // Register a group of directives as being loaded.
-export function registerDirectives(Vue, directives) {
+export function registerDirectives(app, directives) {
     for (let directive in directives) {
-        registerDirective(Vue, directive, directives[directive])
+        registerDirective(app, directive, directives[directive])
     }
 }
 

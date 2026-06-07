@@ -88,7 +88,7 @@ export default {
     /**
      * Clean up everything before the instance is destroyed.
      */
-    beforeDestroy() {
+    beforeUnmount() {
         this._disableDOMObserver()
 
         if (this._TPInstance) {

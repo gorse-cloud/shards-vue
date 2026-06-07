@@ -1,6 +1,6 @@
 {
   "name": "@gorse/shards-vue",
-  "version": "1.0.8",
+  "version": "2.0.0",
   "packageManager": "pnpm@10.33.0",
   "publishConfig": {
     "access": "public"
@@ -25,7 +25,7 @@
   "scripts": {
     "build": "pnpm run clean && rollup -c build/rollup.config.js && pnpm run optimize && pnpm run bundlesize",
     "optimize": "node ./build/optimize.js",
-    "watch": "vue serve sandbox/Sandbox.vue",
+    "watch": "vite --host 0.0.0.0 sandbox",
     "clean": "rimraf dist/*",
     "bundlesize": "bundlesize"
   },
@@ -42,7 +42,7 @@
     "Free",
     "Vue",
     "VueJS",
-    "Vue2",
+    "Vue3",
     "WebComponents",
     "jquery",
     "Popper.js",
@@ -78,44 +78,43 @@
   "bundlesize": [
     {
       "path": "./dist/shards-vue.common.min.js",
-      "maxSize": "50 KB"
+      "maxSize": "60 KB"
     },
     {
       "path": "./dist/shards-vue.esm.min.js",
-      "maxSize": "50 KB"
+      "maxSize": "60 KB"
     },
     {
       "path": "./dist/shards-vue.umd.min.js",
-      "maxSize": "45 KB"
+      "maxSize": "58 KB"
     }
   ],
   "dependencies": {
+    "@gorse/shards-ui": "^3.0.1",
+    "@vuepic/vue-datepicker": "^14.0.0",
     "bootstrap": "^4.1.3",
     "lodash.xor": "^4.5.0",
     "nouislider": "^11.1.0",
-    "popper.js": "^1.14.4",
-    "@gorse/shards-ui": "^3.0.1",
-    "vue-clickaway": "^2.2.2",
-    "vuejs-datepicker": "^1.5.3"
+    "popper.js": "^1.14.4"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.0"
   },
   "devDependencies": {
-    "@vue/cli": "4.5.19",
-    "@vue/cli-service-global": "4.5.19",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/compiler-sfc": "^3.5.35",
     "bundlesize": "1.0.0-beta.2",
     "chalk": "^2.4.1",
-    "clean-css": "^4.1.11",
-    "glob": "^7.1.3",
-    "rimraf": "^2.6.2",
-    "rollup": "^0.63.4",
-    "rollup-plugin-buble": "^0.19.2",
-    "rollup-plugin-commonjs": "^9.1.6",
-    "rollup-plugin-node-resolve": "^3.3.0",
-    "rollup-plugin-uglify": "^4.0.0",
-    "rollup-plugin-vue": "^5.1.9",
+    "postcss": "^8.5.15",
+    "rimraf": "^6.1.3",
+    "rollup": "^4.61.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-vue": "^6.0.0",
     "sass": "^1.93.3",
-    "sass-loader": "^7.1.0",
-    "uglify-es": "^3.3.9",
-    "uglify-js": "^3.4.8",
-    "vue-template-compiler": "^2.5.21"
+    "terser": "^5.48.0",
+    "vite": "^8.0.16",
+    "vue": "^3.5.35"
   }
 }

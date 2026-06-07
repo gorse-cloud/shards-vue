@@ -40,12 +40,22 @@ import dTabButton from './_TabButton.vue'
 
 export default {
     name: 'd-tabs',
+    emits: ['update:modelValue', 'input'],
     components: {
         dTabButton
     },
+    provide() {
+        return {
+            dTabs: {
+                parent: this,
+                registerTab: tab => this.registerTab(tab),
+                unregisterTab: tab => this.unregisterTab(tab)
+            }
+        }
+    },
     data() {
         return {
-            currentTab: this.value,
+            currentTab: this.modelValue !== undefined ? this.modelValue : this.value,
             tabs: [],
             // eslint-disable-next-line
             _tabsContainerID: null
@@ -57,10 +67,13 @@ export default {
                 return
             }
 
+            this.$emit('update:modelValue', newVal)
             this.$emit('input', newVal)
-            this.tabs[newVal].$emit('click')
+            if (this.tabs[newVal]) {
+                this.tabs[newVal].$emit('click')
+            }
         },
-        value (newVal, oldVal) {
+        computedValue (newVal, oldVal) {
             if (newVal === oldVal) {
                 return
             }
@@ -98,6 +111,10 @@ export default {
         /**
          * The value used to set the current tab.
          */
+        modelValue: {
+            type: Number,
+            default: undefined
+        },
         value: {
             type: Number,
             default: null
@@ -139,6 +156,9 @@ export default {
         }
     },
     computed: {
+        computedValue() {
+            return this.modelValue !== undefined ? this.modelValue : this.value
+        },
         computedID() {
             return this.id || `dr-tabs-${guid()}`
         },
@@ -224,6 +244,7 @@ export default {
             const tab = this.tabs[index]
 
             if (!tab) {
+                this.$emit('update:modelValue', this.currentTab)
                 this.$emit('input', this.currentTab)
                 return
             }
@@ -238,17 +259,32 @@ export default {
 
             this.tabs.forEach(_tab => {
                 if (_tab === tab) {
-                    this.$set(_tab, 'localActiveState', true)
+                    _tab.localActiveState = true
                     return
                 }
 
-                this.$set(_tab, 'localActiveState', false)
+                _tab.localActiveState = false
             })
 
             this.currentTab = index
         },
+        registerTab(tab) {
+            if (this.tabs.indexOf(tab) === -1) {
+                this.tabs.push(tab)
+            }
+
+            this.$nextTick(this.updateTabs)
+        },
+        unregisterTab(tab) {
+            const index = this.tabs.indexOf(tab)
+
+            if (index !== -1) {
+                this.tabs.splice(index, 1)
+            }
+
+            this.$nextTick(this.updateTabs)
+        },
         updateTabs() {
-            this.tabs = this.$children.filter(child => child._isTab)
             let tabIndex = null
 
             this.tabs.forEach((tab, index) => {

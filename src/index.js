@@ -1,23 +1,25 @@
 import * as components from './components'
 import * as directives from './directives'
 import { vueUse } from './utils'
+import { installEventBus } from './utils/events'
 
 const VuePlugin = {
-  install: function (Vue) {
-    if (Vue._shards_vue_installed) {
+  install: function (app) {
+    if (app._shards_vue_installed) {
       return
     }
 
-    Vue._shards_vue_installed = true;
+    app._shards_vue_installed = true
+    installEventBus(app)
 
     // Register component plugins
     for (let component in components) {
-      Vue.use(components[component])
+      app.use(components[component])
     }
 
     // Register directive plugins
     for (let directive in directives) {
-      Vue.use(directives[directive])
+      app.use(directives[directive])
     }
   }
 }

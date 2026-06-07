@@ -13,10 +13,12 @@
 import Popover from '../../utils/popover.class'
 import TooltipPopoverMixin from '../../mixins/tooltip-popover.mixin'
 import { TP_PLACEMENTS } from '../../utils/constants';
+import { getEventBus } from '../../utils/events'
 
 export default {
     name: 'd-popover',
     mixins: [ TooltipPopoverMixin ],
+    emits: ['show', 'shown', 'hide', 'hidden', 'update:show', 'update:disabled', 'enabled', 'disabled'],
     props: {
         /**
          * Title
@@ -114,7 +116,7 @@ export default {
                 this._TPInstance = new Popover(
                     target,
                     this.getUpdatedConfig(),
-                    this.$root
+                    getEventBus(this)
                 )
             }
 
@@ -123,4 +125,3 @@ export default {
     }
 }
 </script>
-

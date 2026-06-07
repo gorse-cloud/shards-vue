@@ -56,14 +56,15 @@ npm i @gorse/shards-vue
 If you are using a module bundler such as [Webpack](https://webpack.js.org/) or [Rollup](https://rollupjs.org/), you can include the entire Shards Vue library inside your project.
 
 ```javascript
-import Vue from 'vue'
+import { createApp } from 'vue'
 import ShardsVue from '@gorse/shards-vue'
+import App from './App.vue'
 
 // Import base styles (Bootstrap and Shards)
 import 'bootstrap/dist/css/bootstrap.css'
 import '@gorse/shards-ui/dist/css/shards.css'
 
-Vue.use(ShardsVue);
+createApp(App).use(ShardsVue).mount('#app')
 ```
 
 <br />
@@ -73,14 +74,16 @@ Vue.use(ShardsVue);
 If you'd like to register only certain components as Vue plugins, make sure to import just the component you'd like to use.
 
 ```javascript
-import Vue from 'vue'
+import { createApp } from 'vue'
+import App from './App.vue'
 
 // Import base styles (Bootstrap and Shards)
 import 'bootstrap/dist/css/bootstrap.css'
 import '@gorse/shards-ui/dist/css/shards.css'
 
 import { Button } from '@gorse/shards-vue/src/components'
-Vue.use(Button)
+
+createApp(App).use(Button).mount('#app')
 
 ```
 
@@ -129,7 +132,7 @@ You can also run `pnpm bundlesize` at any time to check the compiled file sizes.
 
 * [Shards UI Kit](https://designrevision.com/downloads/shards/)
 * [noUiSlider by Léon Gersen (WTFPL License)](https://refreshless.com/nouislider/download/)
-* [vuejs-datepicker](https://github.com/charliekassel/vuejs-datepicker)
+* [Vue Datepicker](https://vue3datepicker.com/)
 
 <br />
 

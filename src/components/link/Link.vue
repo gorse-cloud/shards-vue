@@ -11,7 +11,7 @@
             disabled ? 'disabled' : ''
         ]"
         :aria-disabled="computedAriaDisabled"
-        @click.native="handleClick">
+        @click="handleClick">
         <slot>Link</slot>
     </component>
 </template>
@@ -22,6 +22,7 @@ import rootListenerMixin from '../../mixins/root-listener.mixin'
 
 export default {
     name: 'd-link',
+    emits: ['click'],
     mixins: [ rootListenerMixin ],
     props: {
         /**
@@ -97,7 +98,7 @@ export default {
         computedTag() {
             return this.to
                 && !this.disabled
-                && Boolean(this.$parent.$router) ? 'router-link' : 'a'
+                && Boolean(this.$router) ? 'router-link' : 'a'
         },
         computedRel() {
             return this.target === '_blank'
@@ -139,12 +140,7 @@ export default {
                 event.stopPropagation();
                 event.stopImmediatePropagation();
             } else {
-                if (isRouterLink && event.target.__vue__) {
-                    event.target.__vue__.$emit('click', event);
-                } else {
-                    this.$emit('click', event);
-                }
-
+                this.$emit('click', event);
                 this.emitOnRoot(LINK_EVENTS.CLICKED, event);
             }
 

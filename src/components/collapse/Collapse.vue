@@ -27,6 +27,7 @@ import rootListenerMixin from '../../mixins/root-listener.mixin'
 export default {
     name: 'd-collapse',
     mixins: [ rootListenerMixin ],
+    emits: ['update:modelValue', 'update:visible', 'input', 'show', 'shown', 'hide', 'hidden'],
     props: {
         /**
          * The component ID.
@@ -45,6 +46,10 @@ export default {
         /**
          * The visibility state.
          */
+        modelValue: {
+            type: Boolean,
+            default: undefined
+        },
         visible: {
             type: Boolean,
             default: false
@@ -64,12 +69,8 @@ export default {
             default: null
         }
     },
-    model: {
-        prop: 'visible',
-        event: 'input'
-    },
     watch: {
-        visible(newVal) {
+        computedVisible(newVal) {
             if (newVal !== this.show) {
                 this.show = newVal
             }
@@ -82,8 +83,13 @@ export default {
     },
     data() {
         return {
-            show: this.visible,
+            show: this.modelValue !== undefined ? this.modelValue : this.visible,
             transitioning: false
+        }
+    },
+    computed: {
+        computedVisible() {
+            return this.modelValue !== undefined ? this.modelValue : this.visible
         }
     },
     methods: {
@@ -91,8 +97,10 @@ export default {
             this.show = !this.show
         },
         emitStateChange() {
+            this.$emit('update:modelValue', this.show)
+            this.$emit('update:visible', this.show)
             this.$emit('input', this.show)
-            this.$root.$emit('state', this.id, this.show)
+            this.emitOnRoot(COLLAPSE_EVENTS.STATE, this.id, this.show)
 
             if (this.accordion && this.show) {
                 /**
@@ -100,7 +108,7 @@ export default {
                  *
                  * @event accordion-collapse
                  */
-                this.$root.$emit(COLLAPSE_EVENTS.ACCORDION, this.id, this.accordion)
+                this.emitOnRoot(COLLAPSE_EVENTS.ACCORDION, this.id, this.accordion)
             }
 
         },
@@ -199,7 +207,7 @@ export default {
 
         this.emitStateChange()
     },
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.isNav && typeof document !== 'undefined') {
             window.removeEventListener('resize', this.handleResize, false)
             window.removeEventListener('orientationchange', this.handleResize, false)

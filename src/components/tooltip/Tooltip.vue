@@ -10,10 +10,12 @@
 import Tooltip from '../../utils/tooltip.class'
 import TooltipPopoverMixin from '../../mixins/tooltip-popover.mixin'
 import { TP_PLACEMENTS } from '../../utils/constants'
+import { getEventBus } from '../../utils/events'
 
 export default {
     name: 'd-tooltip',
     mixins: [ TooltipPopoverMixin ],
+    emits: ['show', 'shown', 'hide', 'hidden', 'update:show', 'update:disabled', 'enabled', 'disabled'],
     props: {
         /**
          * Title.
@@ -104,7 +106,7 @@ export default {
                 this._TPInstance = new Tooltip(
                     target,
                     this.getUpdatedConfig(),
-                    this.$root
+                    getEventBus(this)
                 )
             }
 

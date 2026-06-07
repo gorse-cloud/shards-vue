@@ -8,6 +8,7 @@ import { guid } from '../../utils'
 
 export default {
     name: 'd-slider',
+    emits: ['update:modelValue', 'input'],
     props: {
         /**
          * The element ID.
@@ -28,9 +29,13 @@ export default {
         /**
          * Slider value.
          */
+        modelValue: {
+            type: [String, Array, Number],
+            default: undefined
+        },
         value: {
             type: [String, Array, Number],
-            required: true
+            default: undefined
         },
         /**
          * Start value.
@@ -59,7 +64,7 @@ export default {
         }
     },
     watch: {
-        value(newVal, oldVal) {
+        computedValue(newVal, oldVal) {
             const sliderInstance = this.$el.noUiSlider
             const sliderValue = sliderInstance.get()
 
@@ -78,13 +83,16 @@ export default {
         }
     },
     computed: {
+        computedValue() {
+            return this.modelValue !== undefined ? this.modelValue : this.value
+        },
         computedID() {
             return this.id || `dr-slider-${guid()}`
         }
     },
     mounted() {
         const config = {
-            start: this.value || this.start,
+            start: this.computedValue || this.start,
             connect: this.connect,
             range: this.range,
             ...this.options
@@ -94,7 +102,8 @@ export default {
 
         this.$el.noUiSlider.on('slide', () => {
             const value = this.$el.noUiSlider.get()
-            if (value !== this.value) {
+            if (value !== this.computedValue) {
+                this.$emit('update:modelValue', value)
                 this.$emit('input', value)
             }
         })

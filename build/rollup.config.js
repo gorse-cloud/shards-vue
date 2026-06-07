@@ -1,20 +1,22 @@
 'use strict'
 
-import path from 'path'
-import fs from 'fs'
-import { name as packageName, dependencies, version } from '../package.json'
-
-import cleanCSS from 'clean-css'
-import buble from 'rollup-plugin-buble'
-import vuePlugin from 'rollup-plugin-vue'
-import nodeResolve from 'rollup-plugin-node-resolve'
-import commonjs from 'rollup-plugin-commonjs'
+const path = require('path')
+const vuePlugin = require('rollup-plugin-vue')
+const { nodeResolve } = require('@rollup/plugin-node-resolve')
+const commonjs = require('@rollup/plugin-commonjs')
+const postcss = require('rollup-plugin-postcss')
+const {
+    name: packageName,
+    dependencies = {},
+    peerDependencies = {},
+    version
+} = require('../package.json')
 
 const PATHS = require('./paths')
 
 const [major, minor] = process.versions.node.split('.').map(parseFloat)
 if (major < 7 || (major === 7 && minor <= 5)) {
-    utils.logError('Node 7.6+ is required.')
+    console.error('Node 7.6+ is required.')
     process.exit()
 }
 
@@ -39,43 +41,32 @@ const banner = `/*
 */`
 
 const globals = {
+    vue: 'Vue',
     bootstrap: 'bootstrap',
     nouislider: 'noUiSlider',
     '@gorse/shards-ui': 'Shards',
-    'vue-clickaway': 'vueClickaway',
-    'vuejs-datepicker': 'VueDatepicker'
+    '@vuepic/vue-datepicker': 'VueDatePicker'
 }
 
 module.exports = {
     input: PATHS.INPUT,
-    external: Object.keys(dependencies).filter(dep => {
+    external: Object.keys({ ...dependencies, ...peerDependencies }).filter(dep => {
         return ['popper.js', 'lodash.xor'].indexOf(dep) === -1
     }),
     plugins: [
         vuePlugin({
-            compileTemplate: true,
-            style: {
-                preprocessOptions: {
-                    scss: {
-                        silenceDeprecations: ['legacy-js-api']
-                    }
-                }
-            },
-            cssModules: {
+            preprocessStyles: true,
+            cssModulesOptions: {
                 generateScopedName: '[name]__[local]'
-            },
-            css(style) {
-                fs.writeFileSync(
-                    path.resolve(PATHS.DIST, `${bundleName}.css`),
-                    new cleanCSS().minify(style).styles
-                )
             }
         }),
-        nodeResolve({ external: ['vue'] }),
-        commonjs(),
-        buble({
-            objectAssign: 'Object.assign'
-        })
+        postcss({
+            sourceMap: true,
+            minimize: false,
+            inject: true
+        }),
+        nodeResolve(),
+        commonjs()
     ],
     output: [
         {
@@ -83,22 +74,21 @@ module.exports = {
             format: 'cjs',
             name: camelize(bundleName),
             file: path.resolve(PATHS.DIST, bundleName + '.common.js'),
-            sourcemap: true
+            sourcemap: true,
+            exports: 'named'
         },
         {
             banner,
             format: 'umd',
             name: camelize(bundleName),
-            modulename: camelize(bundleName),
             globals,
             file: path.resolve(PATHS.DIST, bundleName + '.umd.js'),
-            sourcemap: true
+            sourcemap: true,
+            exports: 'named'
         },
         {
             banner,
             format: 'es',
-            name: camelize(bundleName),
-            modulename: camelize(bundleName),
             file: path.resolve(PATHS.DIST, bundleName + '.esm.js'),
             sourcemap: true
         }

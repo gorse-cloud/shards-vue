@@ -1,6 +1,6 @@
 <template>
     <component :is="computedTag" :id="computedID"
-        v-on-clickaway="away"
+        v-click-away="away"
         :class="[
             'dropdown',
             'd-dropdown',
@@ -64,19 +64,18 @@ import Popper from 'popper.js'
 import { guid, closest } from '../../utils'
 import { THEMECOLORS, DROPDOWN_EVENTS, KEYCODES, LINK_EVENTS } from '../../utils/constants'
 import { CancelableEvent } from '../../utils/events'
-import { mixin as clickAwayMixin } from 'vue-clickaway';
+import clickAway from '../../directives/click-away'
 import rootListenerMixin from '../../mixins/root-listener.mixin'
 
 export default {
     name: 'd-dropdown',
-    mixins: [
-        rootListenerMixin,
-        clickAwayMixin
-    ],
+    directives: { clickAway },
+    mixins: [rootListenerMixin],
+    emits: ['show', 'shown', 'hide', 'hidden', 'toggle', 'click'],
     data() {
         return {
             visible: false,
-            isNavbar: null,
+            inNavbar: null,
             visibleChangePrevented: false
         }
     },
@@ -378,8 +377,8 @@ export default {
             )
         },
         removePopper() {
-            if (this._popper) {
-                this._popper.destroy()
+            if (this._popperInstance) {
+                this._popperInstance.destroy()
             }
             this._popperInstance = null
         },
@@ -428,7 +427,7 @@ export default {
         this.visible = false
         this.removePopper()
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.visible = false
         this.removePopper()
     }

@@ -29,13 +29,10 @@ import { guid } from '../../utils'
 
 export default {
     name: 'd-form-radio',
-    model: {
-        prop: 'checked',
-        event: 'input'
-    },
+    emits: ['update:modelValue', 'update:checked', 'input', 'change'],
     data() {
         return {
-            localChecked: this.checked
+            localChecked: this.modelValue !== undefined ? this.modelValue : this.checked
         }
     },
     props: {
@@ -74,6 +71,10 @@ export default {
         /**
          * The checked state.
          */
+        modelValue: {
+            type: [Boolean, String, Array],
+            default: undefined
+        },
         checked: {
             type: [Boolean, String, Array]
         },
@@ -102,6 +103,9 @@ export default {
                 this.localChecked = val
             }
         },
+        computedChecked() {
+            return this.modelValue !== undefined ? this.modelValue : this.checked
+        },
         computedID() {
             return this.id || `dr-radio-${guid()}`
         },
@@ -129,20 +133,22 @@ export default {
         }
     },
     watch: {
-        computedLocalChecked(newVal, oldVal) {
-            if (newVal == oldVal) {
-                return
-            }
-
-            this.$emit('input', newVal)
-        },
-
-        checked(newVal, oldVal) {
+        computedChecked(newVal, oldVal) {
             if (newVal == oldVal) {
                 return
             }
 
             this.computedLocalChecked = newVal
+        },
+
+        computedLocalChecked(newVal, oldVal) {
+            if (newVal == oldVal) {
+                return
+            }
+
+            this.$emit('update:modelValue', newVal)
+            this.$emit('update:checked', newVal)
+            this.$emit('input', newVal)
         },
     },
 

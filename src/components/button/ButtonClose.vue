@@ -10,6 +10,7 @@
 <script>
 export default {
     name: 'd-button-close',
+    emits: ['click'],
     props: {
         /**
          * Whether it should be displayed as disabled, or not.

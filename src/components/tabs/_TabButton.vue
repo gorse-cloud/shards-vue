@@ -26,6 +26,7 @@ import { KEYCODES } from '../../utils/constants';
 
 export default {
     name: 'd-tab-button',
+    emits: ['click'],
     props: {
         /**
          * The element ID.

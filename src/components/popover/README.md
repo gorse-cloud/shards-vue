@@ -14,7 +14,7 @@ Popovers can be created using the `<d-popover>` component.
 <div>
     <d-btn id="popover-example-1">Click Me</d-btn>
     <d-popover target="popover-example-1" container=".shards-demo--example--popover-01">
-        <template slot="title">
+        <template #title>
             Title Here
         </template>
         Content Here
@@ -37,7 +37,7 @@ The `<d-popover>` component, by default is triggered by the `click` event. Howev
     <d-popover target="popover-example-2"
         container=".shards-demo--example--popover-02"
         :triggers="['hover']">
-        <template slot="title">
+        <template #title>
             Title Here
         </template>
         Content Here
@@ -61,7 +61,7 @@ Using the `placement` prop you can adjust where your popover will be displayed. 
     <d-popover target="popover-example-3"
         :placement="'rightbottom'"
         container=".shards-demo--example--popover-03">
-        <template slot="title">
+        <template #title>
             Title Here
         </template>
         Content Here

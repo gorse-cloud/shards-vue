@@ -6,7 +6,15 @@ const allListenTypes = {
 
 const BEL_KEY = '__DR_BOUND_EVENT_LISTENERS__'
 
-const bindTargets = (vnode, binding, listenTypes, callback) => {
+const getElement = el => el && (el.elm || el.el || el)
+
+const bindTargets = (el, binding, listenTypes, callback) => {
+    const element = getElement(el)
+
+    if (!element) {
+        return []
+    }
+
     const targets = Object.keys(binding.modifiers || {}).filter(t => !allListenTypes[t])
 
     if (binding.value) {
@@ -14,29 +22,35 @@ const bindTargets = (vnode, binding, listenTypes, callback) => {
     }
 
     const listener = () => {
-        callback({ targets, vnode })
+        callback({ targets, el: element, binding })
     }
 
     Object.keys(allListenTypes).forEach(type => {
         if (listenTypes[type] || binding.modifiers[type]) {
-            vnode.elm.addEventListener(type, listener)
-            const boundListeners = vnode.elm[BEL_KEY] || {}
+            element.addEventListener(type, listener)
+            const boundListeners = element[BEL_KEY] || {}
             boundListeners[type] = boundListeners[type] || []
             boundListeners[type].push(listener)
-            vnode.elm[BEL_KEY] = boundListeners
+            element[BEL_KEY] = boundListeners
         }
     })
 
     return targets
 }
 
-const unbindTargets = (vnode, binding, listenTypes) => {
+const unbindTargets = (el, binding, listenTypes) => {
+    const element = getElement(el)
+
+    if (!element) {
+        return
+    }
+
     Object.keys(allListenTypes).forEach(type => {
         if (listenTypes[type] || binding.modifiers[type]) {
-            const boundListeners = vnode.elm[BEL_KEY] && vnode.elm[BEL_KEY][type]
+            const boundListeners = element[BEL_KEY] && element[BEL_KEY][type]
             if (boundListeners) {
-                boundListeners.forEach(listener => vnode.elm.removeEventListener(type, listener))
-                delete vnode.elm[BEL_KEY][type]
+                boundListeners.forEach(listener => element.removeEventListener(type, listener))
+                delete element[BEL_KEY][type]
             }
         }
     })

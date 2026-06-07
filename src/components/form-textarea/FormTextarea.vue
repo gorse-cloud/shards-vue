@@ -19,6 +19,7 @@
     :wrap="wrap"
     :aria-required="required ? 'true' : null"
     :aria-invalid="computedAriaInvalid"
+    :value="localValue"
     @input="handleInput"
   ></textarea>
 </template>
@@ -28,12 +29,27 @@ import { guid, getComputedStyles, isVisible } from "../../utils";
 
 export default {
   name: "d-form-textarea",
+  emits: ["update:modelValue", "input"],
   data() {
     return {
-      localValue: this.value
+      localValue: this.modelValue !== undefined ? this.modelValue : this.value
     };
   },
   props: {
+    /**
+     * The textarea value.
+     */
+    modelValue: {
+      type: [String, Number],
+      default: undefined
+    },
+    /**
+     * The textarea value.
+     */
+    value: {
+      type: [String, Number],
+      default: ""
+    },
     /**
      * The element name.
      */
@@ -107,6 +123,13 @@ export default {
       default: false
     },
     /**
+     * The textarea `aria-invalid` attribute.
+     */
+    ariaInvalid: {
+      type: [Boolean, String],
+      default: false
+    },
+    /**
      * The number of text rows.
      */
     rows: {
@@ -139,7 +162,23 @@ export default {
   mounted() {
     this.el = this.$el;
   },
+  watch: {
+    computedValue(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.localValue = newVal;
+      }
+    },
+    localValue(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.$emit("update:modelValue", newVal);
+        this.$emit("input", newVal);
+      }
+    }
+  },
   computed: {
+    computedValue() {
+      return this.modelValue !== undefined ? this.modelValue : this.value;
+    },
     computedID() {
       return this.id || `dr-textarea-${guid()}`;
     },
@@ -154,7 +193,8 @@ export default {
       return Math.max(parseInt(this.rows, 10) || 2, 2);
     },
     computedMaxRows() {
-      return Math.max(this.computedMinRows, parseInt(this.maxRows, 10) || 0);
+      const maxRows = parseInt(this.maxRows, 10);
+      return maxRows ? Math.max(this.computedMinRows, maxRows) : null;
     },
     computedHeight() {
       if (this.localValue === null || !isVisible(this.el)) {
@@ -167,10 +207,10 @@ export default {
       this.el.style.height = "inherit";
 
       const computed = getComputedStyles(this.el);
+      const lineHeight = parseFloat(computed.lineHeight);
       const minHeight =
         parseInt(computed.height, 10) || lineHeight * this.computedMinRows;
 
-      const lineHeight = parseFloat(computed.lineHeight);
       const offset =
         parseInt(computed.borderTopWidth, 10) +
         parseInt(computed.paddingTop, 10) +
@@ -180,15 +220,15 @@ export default {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.el.style.height = _height;
 
-      const rows = Math.min(
-        Math.max(
-          (this.el.scrollHeight - offset) / lineHeight,
-          this.computedMinRows
-        ),
-        this.computedMaxRows - 1
+      const calculatedRows = Math.max(
+        (this.el.scrollHeight - offset) / lineHeight,
+        this.computedMinRows
       );
+      const rows = this.computedMaxRows
+        ? Math.min(calculatedRows, this.computedMaxRows)
+        : calculatedRows;
 
-      if (!this.localValue.trim()) {
+      if (!String(this.localValue || "").trim()) {
         return `${minHeight}px`;
       }
 
@@ -227,18 +267,6 @@ export default {
       }
 
       return null;
-    }
-  },
-  watch: {
-    value(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.localValue = newVal;
-      }
-    },
-    localValue(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$emit("input", newVal);
-      }
     }
   },
   methods: {

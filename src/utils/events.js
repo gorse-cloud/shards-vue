@@ -46,3 +46,69 @@ export class CancelableEvent {
         }
     }
 }
+
+export function createEventBus() {
+    const listeners = Object.create(null)
+
+    return {
+        $on(event, callback) {
+            if (!listeners[event]) {
+                listeners[event] = new Set()
+            }
+
+            listeners[event].add(callback)
+        },
+
+        $off(event, callback) {
+            if (!listeners[event]) {
+                return
+            }
+
+            if (callback) {
+                listeners[event].delete(callback)
+            } else {
+                listeners[event].clear()
+            }
+        },
+
+        $emit(event, ...args) {
+            if (!listeners[event]) {
+                return
+            }
+
+            listeners[event].forEach(callback => callback(...args))
+        }
+    }
+}
+
+const fallbackEventBus = createEventBus()
+
+export function installEventBus(app) {
+    if (!app || !app.config || !app.config.globalProperties) {
+        return fallbackEventBus
+    }
+
+    if (!app.config.globalProperties.$shardsVueBus) {
+        app.config.globalProperties.$shardsVueBus = createEventBus()
+    }
+
+    return app.config.globalProperties.$shardsVueBus
+}
+
+export function getEventBus(instance) {
+    if (instance && instance.$shardsVueBus) {
+        return instance.$shardsVueBus
+    }
+
+    if (
+        instance
+        && instance.appContext
+        && instance.appContext.config
+        && instance.appContext.config.globalProperties
+        && instance.appContext.config.globalProperties.$shardsVueBus
+    ) {
+        return instance.appContext.config.globalProperties.$shardsVueBus
+    }
+
+    return fallbackEventBus
+}

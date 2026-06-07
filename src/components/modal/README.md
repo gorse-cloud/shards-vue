@@ -8,7 +8,7 @@ Creating flexible modal dialogs can be achieved using the `<d-modal>` component.
 ```html
 <template>
     <div>Modal opened: <span :class="[showModal ? 'text-success' : 'text-danger']">{{ showModal }}</span></div>
-    <d-btn @click.native="handleClick">Click Me</d-btn>
+    <d-btn @click="handleClick">Click Me</d-btn>
     <d-modal v-if="showModal" @close="handleClose">
         <d-modal-header>
             <d-modal-title>Header</d-modal-title>
@@ -46,7 +46,7 @@ Using the `size` prop on the `<d-modal>` component, you can control the size of 
 :::demo
 ```html
 <template>
-    <d-btn @click.native="showModal = true">Click Me</d-btn>
+    <d-btn @click="showModal = true">Click Me</d-btn>
     <d-modal v-if="showModal" size="sm" @close="showModal = false" :size="modalSize">
         <d-modal-header>
             <d-modal-title>Hello</d-modal-title>

@@ -24,14 +24,15 @@ npm i @gorse/shards-vue
 You can register the entire UI kit as a Vue plugin in your app's entry point:
 
 ```javascript
-import Vue from 'vue'
+import { createApp } from 'vue'
 import ShardsVue from '@gorse/shards-vue'
+import App from './App.vue'
 
 // Import base styles (Bootstrap and Shards)
 import 'bootstrap/dist/css/bootstrap.css'
 import '@gorse/shards-ui/dist/css/shards.css'
 
-Vue.use(ShardsVue);
+createApp(App).use(ShardsVue).mount('#app')
 ```
 
 ## Registering Components as Vue Plugins
@@ -39,14 +40,15 @@ Vue.use(ShardsVue);
 If you'd like to register only certain components as Vue plugins, make sure to import just the component you'd like to use.
 
 ```javascript
-import Vue from 'vue'
+import { createApp } from 'vue'
+import App from './App.vue'
 
 // Import base styles (Bootstrap and Shards)
 import 'bootstrap/dist/css/bootstrap.css'
 import '@gorse/shards-ui/dist/css/shards.css'
 
 import { Button } from '@gorse/shards-vue/src/components'
-Vue.use(Button)
+createApp(App).use(Button).mount('#app')
 
 ```
 

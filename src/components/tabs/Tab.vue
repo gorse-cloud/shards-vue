@@ -13,7 +13,7 @@
             :aria-labelledby="controlledBy || null"
             :class="[
                 'tab-pane',
-                ($parent && $parent.card && !noBody) ? 'card-body' : '',
+                (tabsParent && tabsParent.card && !noBody) ? 'card-body' : '',
                 show ? 'show' : '',
                 disabled ? 'disabled' : '',
                 localActiveState ? 'active' : ''
@@ -28,6 +28,12 @@ import { guid } from '../../utils';
 
 export default {
     name: 'd-tab',
+    emits: ['click'],
+    inject: {
+        dTabs: {
+            default: null
+        }
+    },
     data() {
         return {
             localActiveState: this.active && !this.disabled,
@@ -93,10 +99,13 @@ export default {
             return this.buttonId || `dr-tab-button-${guid()}`
         },
         computedFade() {
-            return this.$parent.fade
+            return this.tabsParent && this.tabsParent.fade
         },
         _isTab() {
             return true
+        },
+        tabsParent() {
+            return this.dTabs && this.dTabs.parent
         }
     },
     methods: {
@@ -112,6 +121,14 @@ export default {
     },
     mounted() {
         this.show = this.localActiveState
+        if (this.dTabs) {
+            this.dTabs.registerTab(this)
+        }
+    },
+    beforeUnmount() {
+        if (this.dTabs) {
+            this.dTabs.unregisterTab(this)
+        }
     }
 }
 </script>

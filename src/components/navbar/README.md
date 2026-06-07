@@ -28,9 +28,11 @@ Using the `<d-navbar>` component you can create powerful and responsive navigati
 
     <d-navbar-nav class="ml-auto">
         <d-input-group seamless>
-            <d-input-group-text slot="prepend">
-                <fa :icon="['fas', 'search']" />
-            </d-input-group-text>
+            <template #prepend>
+                <d-input-group-text>
+                    <fa :icon="['fas', 'search']" />
+                </d-input-group-text>
+            </template>
             <d-input size="sm" placeholder="Search..."/>
         </d-input-group>
     </d-navbar-nav>

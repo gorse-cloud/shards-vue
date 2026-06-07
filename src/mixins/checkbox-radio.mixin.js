@@ -1,15 +1,14 @@
 export default {
     data() {
         return {
-            localChecked: this.checked,
+            localChecked: this.modelValue !== undefined ? this.modelValue : this.checked,
             hasFocus: false
         }
     },
-    model: {
-        prop: 'checked',
-        event: 'input'
-    },
     props: {
+        modelValue: {
+            default: undefined
+        },
         value: {},
         checked: {},
         buttonTheme: {
@@ -20,7 +19,7 @@ export default {
     computed: {
         computedLocalChecked: {
             get() {
-                this.isChild ? this.$parent.localChecked : this.localChecked
+                return this.isChild ? this.$parent.localChecked : this.localChecked
             },
             set (val) {
                 if (this.isChild) {

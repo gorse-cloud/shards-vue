@@ -20,6 +20,7 @@ import { THEMECOLORS } from '../../utils/constants'
 
 export default {
     name: 'd-button',
+    emits: ['click'],
     props: {
         /**
          * The theme style.

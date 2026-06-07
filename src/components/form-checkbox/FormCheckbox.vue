@@ -32,13 +32,10 @@ import { guid } from '../../utils'
 
 export default {
     name: 'd-form-checkbox',
-    model: {
-        prop: 'checked',
-        event: 'input'
-    },
+    emits: ['update:modelValue', 'update:checked', 'update:indeterminate', 'input', 'change'],
     data() {
         return {
-            localState: this.checked
+            localState: this.modelValue !== undefined ? this.modelValue : this.checked
         }
     },
     props: {
@@ -83,6 +80,10 @@ export default {
         /**
          * The checked state.
          */
+        modelValue: {
+            type: [Boolean, String, Array],
+            default: undefined
+        },
         checked: {
             type: [Boolean, String, Array]
         },
@@ -122,6 +123,49 @@ export default {
             default: false
         }
     },
+    watch: {
+        computedChecked(newVal, oldVal) {
+            if (newVal == oldVal) {
+                return
+            }
+
+            this.computedLocalState = newVal
+        },
+
+        computedLocalState(newVal, oldVal) {
+            if (newVal == oldVal) {
+                return
+            }
+
+            this.$emit('update:modelValue', newVal)
+            this.$emit('update:checked', newVal)
+            this.$emit('input', newVal)
+            if (this.$refs.check) {
+                this.$emit('update:indeterminate', this.$refs.check.indeterminate)
+            }
+        },
+
+        indeterminate(newVal) {
+            this.setIndeterminate(newVal)
+        }
+    },
+
+    methods: {
+        handleChange(e) {
+            this.$emit('change', e.target.checked ? this.value : this.uncheckedValue)
+            this.$emit('update:indeterminate', this.$refs.check.indeterminate)
+        },
+
+        setIndeterminate(state) {
+            if (!this.$refs.check) {
+                return
+            }
+
+            this.$refs.check.indeterminate = state
+            this.$emit('update:indeterminate', this.$refs.check.indeterminate)
+        }
+    },
+
     computed: {
         computedLocalState: {
             get() {
@@ -131,6 +175,9 @@ export default {
             set(val) {
                 this.localState = val
             }
+        },
+        computedChecked() {
+            return this.modelValue !== undefined ? this.modelValue : this.checked
         },
         computedID() {
             return this.id || `dr-checkbox-${guid()}`
@@ -156,40 +203,6 @@ export default {
             }
 
             return null
-        }
-    },
-    watch: {
-        computedLocalState(newVal, oldVal) {
-            if (newVal == oldVal) {
-                return
-            }
-
-            this.$emit('input', newVal)
-            this.$emit('update:indeterminate', this.$refs.check.indeterminate)
-        },
-
-        checked(newVal, oldVal) {
-            if (newVal == oldVal) {
-                return
-            }
-
-            this.computedLocalState = newVal
-        },
-
-        indeterminate(newVal) {
-            this.setIndeterminate(newVal)
-        }
-    },
-
-    methods: {
-        handleChange(e) {
-            this.$emit('change', e.target.checked ? this.value : this.uncheckedValue)
-            this.$emit('update:indeterminate', this.$refs.check.indeterminate)
-        },
-
-        setIndeterminate(state) {
-            this.$refs.check.indeterminate = state
-            this.$emit('update:indeterminate', this.$refs.check.indeterminate)
         }
     },
 

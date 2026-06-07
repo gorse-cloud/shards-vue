@@ -1,6 +1,6 @@
 # Datepickers
 
-Datepickers in Shards Vue are wrappers over the `vuejs-datepicker` component. You can learn more about the component in [the official component's GitHub repository](https://github.com/charliekassel/vuejs-datepicker), or follow the short guide below for an overview of how to use datepickers in Shards Vue.
+Datepickers in Shards Vue are wrappers over the `@vuepic/vue-datepicker` component. You can learn more about the component in [the official documentation](https://vue3datepicker.com/), or follow the short guide below for an overview of how to use datepickers in Shards Vue.
 
 ## Basic Example
 

@@ -1,41 +1,29 @@
 <template>
-    <VueDatepicker
-        :value="value"
-        :name="name"
-        :id="id"
-        :format="format"
-        :language="language"
-        :open-date="openDate"
-        :day-cell-content="dayCellContent"
-        :full-month-name="fullMonthName"
-        :disabled-dates="disabledDates"
-        :highlighted="highlighted"
+    <VueDatePicker
+        :model-value="computedValue"
+        :formats="computedFormats"
+        :locale="computedLocale"
+        :start-date="openDate"
+        :disabled-dates="computedDisabledDates"
+        :highlight="computedHighlight"
         :placeholder="placeholder"
         :inline="inline"
-        :calendar-class="computedCalendarClass"
-        :input-class="inputClass"
-        :wrapper-class="wrapperClass"
-        :monday-first="mondayFirst"
-        :clear-button="clearButton"
-        :clear-button-icon="clearButtonIcon"
-        :calendar-button="calendarButton"
-        :calendar-button-icon="calendarButtonIcon"
-        :calendar-button-icon-content="calendarButtonIconContent"
-        :initial-view="initialView"
+        :input-attrs="computedInputAttrs"
+        :ui="computedUi"
+        :class="computedWrapperClass"
+        :week-start="mondayFirst ? 1 : undefined"
+        :auto-apply="true"
+        :enable-time-picker="false"
+        :time-config="{ enableTimePicker: false }"
         :disabled="disabled"
-        :required="required"
-        :typeable="typeable"
-        :use-utc="useUtc"
-        :minimum-view="minimumView"
-        :maximum-view="maximumView"
-        v-on="$listeners">
-            <slot name="beforeCalendarHeader" slot="beforeCalendarHeader" />
-            <slot name="afterDateInput" slot="afterDateInput" />
-    </VueDatepicker>
+        :text-input="typeable"
+        v-bind="$attrs"
+        @update:model-value="handleUpdate" />
 </template>
 
 <script>
-import VueDatepicker from 'vuejs-datepicker'
+import { VueDatePicker } from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
 
 // Validator function that checks the date props.
 const _datePropValidator = (v) => {
@@ -45,13 +33,64 @@ const _datePropValidator = (v) => {
             || typeof v === 'number'
 }
 
+const _normalizeClass = (value) => {
+    if (!value) {
+        return []
+    }
+
+    if (typeof value === 'string') {
+        return value.split(/\s+/).filter(Boolean)
+    }
+
+    if (Array.isArray(value)) {
+        return value.flatMap(_normalizeClass)
+    }
+
+    if (typeof value === 'object') {
+        return Object.keys(value).filter(key => value[key])
+    }
+
+    return []
+}
+
+const _mergeClasses = (...values) => {
+    return [...new Set(values.flatMap(_normalizeClass))]
+}
+
+const _normalizeDate = (value) => {
+    if (value === null || typeof value === 'undefined') {
+        return null
+    }
+
+    const date = value instanceof Date ? value : new Date(value)
+
+    return Number.isNaN(date.getTime()) ? null : date
+}
+
+const _isSameDay = (left, right) => {
+    return left.getFullYear() === right.getFullYear()
+            && left.getMonth() === right.getMonth()
+            && left.getDate() === right.getDate()
+}
+
+const _isInRange = (value, range) => {
+    const from = _normalizeDate(range && range.from)
+    const to = _normalizeDate(range && range.to)
+
+    return Boolean(from && to && value >= from && value <= to)
+}
+
 export default {
     name: 'd-datepicker',
-    components: { VueDatepicker },
+    components: { VueDatePicker },
+    emits: ['update:modelValue', 'input'],
     props: {
         /**
          * The datepicker's value.
          */
+        modelValue: {
+            validator: v => typeof v === 'undefined' || _datePropValidator(v)
+        },
         value: {
             validator: _datePropValidator
         },
@@ -192,13 +231,143 @@ export default {
         small: {
             type: Boolean,
             default: false
+        },
+        /**
+         * Advanced UI class configuration passed to @vuepic/vue-datepicker.
+         */
+        ui: {
+            type: Object,
+            default: () => ({})
+        },
+        /**
+         * Advanced input attributes passed to @vuepic/vue-datepicker.
+         */
+        inputAttrs: {
+            type: Object,
+            default: () => ({})
         }
     },
     computed: {
-        computedCalendarClass() {
-            let _calendarClass = this.small ? 'vdp-datepicker__small' : ''
+        computedValue() {
+            return this.modelValue !== undefined ? this.modelValue : this.value
+        },
+        computedLocale() {
+            if (typeof this.language === 'string') {
+                return this.language
+            }
 
-            return _calendarClass += this.calendarClass
+            return this.language && (this.language.language || this.language.lang || this.language.id)
+        },
+        computedFormats() {
+            return {
+                input: this.format,
+                month: this.fullMonthName ? 'MMMM' : 'LLL'
+            }
+        },
+        computedDisabledDates() {
+            if (!this.disabledDates || Array.isArray(this.disabledDates) || typeof this.disabledDates === 'function') {
+                return this.disabledDates
+            }
+
+            const disabledDates = this.disabledDates
+            const to = _normalizeDate(disabledDates.to)
+            const from = _normalizeDate(disabledDates.from)
+            const dates = Array.isArray(disabledDates.dates)
+                ? disabledDates.dates.map(_normalizeDate).filter(Boolean)
+                : []
+            const ranges = Array.isArray(disabledDates.ranges) ? disabledDates.ranges : []
+
+            return (date) => {
+                const value = _normalizeDate(date)
+
+                if (!value) {
+                    return false
+                }
+
+                return Boolean(
+                    (to && value <= to)
+                    || (from && value >= from)
+                    || (Array.isArray(disabledDates.days) && disabledDates.days.includes(value.getDay()))
+                    || (Array.isArray(disabledDates.daysOfMonth) && disabledDates.daysOfMonth.includes(value.getDate()))
+                    || dates.some(disabledDate => _isSameDay(value, disabledDate))
+                    || ranges.some(range => _isInRange(value, range))
+                    || (disabledDates.customPredictor && disabledDates.customPredictor(value))
+                )
+            }
+        },
+        computedHighlight() {
+            if (!this.highlighted || typeof this.highlighted === 'function') {
+                return this.highlighted
+            }
+
+            const highlighted = this.highlighted
+            const from = _normalizeDate(highlighted.from)
+            const to = _normalizeDate(highlighted.to)
+            const dates = Array.isArray(highlighted.dates)
+                ? highlighted.dates.map(_normalizeDate).filter(Boolean)
+                : []
+
+            const hasRange = Boolean(from && to)
+
+            if (!hasRange && !dates.length && !highlighted.customPredictor) {
+                return highlighted
+            }
+
+            return (date) => {
+                const value = _normalizeDate(date)
+
+                if (!value) {
+                    return false
+                }
+
+                if (hasRange) {
+                    return value >= from && value <= to
+                }
+
+                if (dates.some(highlightedDate => _isSameDay(value, highlightedDate))) {
+                    return true
+                }
+
+                return highlighted.customPredictor ? highlighted.customPredictor(value) : false
+            }
+        },
+        computedWrapperClass() {
+            return [
+                'vdp-datepicker',
+                this.wrapperClass
+            ]
+        },
+        computedInputAttrs() {
+            return {
+                ...this.inputAttrs,
+                name: this.name || this.inputAttrs.name,
+                id: this.id || this.inputAttrs.id,
+                required: this.required || Boolean(this.inputAttrs.required),
+                clearable: this.clearButton,
+                hideInputIcon: !this.calendarButton
+            }
+        },
+        computedUi() {
+            return {
+                ...this.ui,
+                input: _mergeClasses('vdp-datepicker__input', this.inputClass, this.ui.input),
+                menu: _mergeClasses(
+                    'vdp-datepicker__calendar',
+                    this.small ? 'vdp-datepicker__small' : '',
+                    this.calendarClass,
+                    this.ui.menu
+                ),
+                calendar: _mergeClasses('vdp-datepicker__calendar-grid', this.ui.calendar),
+                calendarCell: _mergeClasses('vdp-datepicker__cell', this.ui.calendarCell),
+                navBtnPrev: _mergeClasses('vdp-datepicker__nav-button', this.ui.navBtnPrev),
+                navBtnNext: _mergeClasses('vdp-datepicker__nav-button', this.ui.navBtnNext)
+            }
+        }
+    },
+    methods: {
+        handleUpdate(value) {
+            this.$emit('update:modelValue', value)
+            this.$emit('input', value)
         }
     }
 }
@@ -253,6 +422,43 @@ export default {
     $datepicker-small-day-header-font-size: 100%;
 
     div.vdp-datepicker {
+        --dp-font-family: #{$font-system};
+        --dp-font-size: #{$datepicker-font-size};
+        --dp-border-radius: #{$datepicker-border-radius};
+        --dp-cell-border-radius: #{$datepicker-border-radius};
+        --dp-cell-size: #{$datepicker-cell-width};
+        --dp-primary-color: #{$color-primary};
+        --dp-primary-text-color: #{$white};
+        --dp-background-color: #{$datepicker-background-color};
+        --dp-text-color: #{$datepicker-color};
+        --dp-hover-color: #{$datepicker-cell-hover-color};
+        --dp-hover-text-color: #{$datepicker-color};
+        --dp-hover-icon-color: #{$datepicker-color};
+        --dp-icon-color: #{$color-silver-sand};
+        --dp-border-color: rgba(0, 0, 0, .15);
+        --dp-menu-border-color: rgba(0, 0, 0, .15);
+        --dp-border-color-hover: #{$color-silver-sand};
+        --dp-border-color-focus: #{$color-primary};
+        --dp-highlight-color: #{$color-primary};
+        --dp-range-between-dates-background-color: #{$color-primary};
+        --dp-range-between-dates-text-color: #{$white};
+        --dp-range-between-border-color: #{$color-primary};
+        --dp-input-padding: .4375rem .75rem;
+        --dp-input-icon-padding: 2.25rem;
+        --dp-menu-padding: 0;
+        --dp-menu-min-width: #{$datepicker-min-width};
+
+        display: inline-block;
+        width: 100%;
+
+        .dp--input-wrap {
+            width: 100%;
+        }
+
+        .vdp-datepicker__input.dp--input {
+            background-color: $white;
+        }
+
         &__calendar {
             color: $datepicker-color;
             padding: $datepicker-padding-y $datepicker-padding-x;
@@ -265,6 +471,84 @@ export default {
             border-radius: $datepicker-border-radius;
             box-shadow: $datepicker-drop-shadows;
             border: 1px solid rgba($black,.15) !important;
+
+            .dp--menu-inner {
+                padding: 0;
+            }
+
+            .dp--month-year-row {
+                padding-bottom: 10px;
+            }
+
+            .dp--calendar-header {
+                font-weight: 500;
+            }
+
+            .dp--calendar-header-separator {
+                display: none;
+            }
+
+            .dp--month-year-select-base,
+            .dp--inner-nav,
+            .dp--cell-inner {
+                transition: $transition-default;
+                border-radius: $border-radius-default;
+            }
+
+            .dp--inner-nav {
+                color: $color-silver-sand;
+            }
+
+            .dp--month-year-select-base {
+                font-weight: 500;
+            }
+
+            .dp--calendar-header-item,
+            .dp--cell-inner {
+                width: $datepicker-cell-width;
+                height: $datepicker-cell-height;
+                padding: 0;
+                font-size: $datepicker-cell-font-size;
+            }
+
+            .dp--cell-inner {
+                line-height: $datepicker-cell-line-height;
+                border-color: $border-color;
+            }
+
+            .dp--calendar-row {
+                margin: 0;
+            }
+
+            .dp--date-hoverable:hover,
+            .dp--month-year-select-base:hover,
+            .dp--inner-nav:hover {
+                background-color: $datepicker-cell-hover-color;
+                border-color: $border-color !important;
+            }
+
+            .dp--active,
+            .dp--range-border-start,
+            .dp--range-border-end,
+            .dp--cell-highlight,
+            .dp--cell-highlight-active {
+                background: $color-primary !important;
+                color: $white;
+            }
+
+            .dp--active:hover,
+            .dp--cell-highlight:hover,
+            .dp--cell-highlight-active:hover {
+                background: color.adjust($color-primary, $lightness: -5%) !important;
+                border-color: $border-color !important;
+            }
+
+            .dp--range-between {
+                background: $color-primary;
+                border-color: $color-primary;
+                color: $white;
+                border-radius: 0;
+            }
 
             // Header
             header {
@@ -363,9 +647,25 @@ export default {
 
         // Small Datepicker modifier.
         &__small {
+            --dp-font-size: #{$datepicker-small-font-size};
+            --dp-cell-size: #{$datepicker-small-day-width};
+
             padding: $datepicker-small-padding-y $datepicker-small-padding-x;
             font-size: $datepicker-small-font-size;
             max-width: $datepicker-small-max-width;
+
+            .dp--calendar-header-item,
+            .dp--cell-inner {
+                width: $datepicker-small-day-width;
+                height: $datepicker-small-day-height;
+                line-height: $datepicker-small-day-line-height;
+                font-size: $datepicker-small-day-font-size;
+                font-weight: $datepicker-small-day-font-weight;
+            }
+
+            .dp--calendar-header-item {
+                font-size: $datepicker-small-day-header-font-size;
+            }
 
             .cell {
                 &.day {
@@ -388,4 +688,3 @@ export default {
         }
     }
 </style>
-
