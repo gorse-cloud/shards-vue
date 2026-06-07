@@ -10,13 +10,13 @@ If you are using a module bundler such as [Webpack](https://webpack.js.org/) or 
 
 ```bash
 // Install via pnpm
-pnpm add shards-vue
+pnpm add @gorse/shards-vue
 
 // Install via Yarn
-yarn add shards-vue
+yarn add @gorse/shards-vue
 
 // Install via npm
-npm i shards-vue
+npm i @gorse/shards-vue
 ```
 
 ## Module Bundlers
@@ -25,7 +25,7 @@ You can register the entire UI kit as a Vue plugin in your app's entry point:
 
 ```javascript
 import Vue from 'vue'
-import ShardsVue from 'shards-vue'
+import ShardsVue from '@gorse/shards-vue'
 
 // Import base styles (Bootstrap and Shards)
 import 'bootstrap/dist/css/bootstrap.css'
@@ -45,7 +45,7 @@ import Vue from 'vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'shards-ui/dist/css/shards.css'
 
-import { Button } from 'shards-vue/src/components'
+import { Button } from '@gorse/shards-vue/src/components'
 Vue.use(Button)
 
 ```
@@ -60,7 +60,7 @@ Importing single file components is also possible.
 </template>
 
 <script>
-import dButton from 'shards-vue/src/components/button/Button'
+import dButton from '@gorse/shards-vue/src/components/button/Button'
 
 export default {
     components: {

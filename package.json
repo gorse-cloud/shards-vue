@@ -1,5 +1,5 @@
 {
-  "name": "shards-vue",
+  "name": "@gorse/shards-vue",
   "version": "1.0.7",
   "packageManager": "pnpm@10.33.0",
   "license": "MIT",

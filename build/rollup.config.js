@@ -2,7 +2,7 @@
 
 import path from 'path'
 import fs from 'fs'
-import { name, dependencies, version } from '../package.json'
+import { name as packageName, dependencies, version } from '../package.json'
 
 import cleanCSS from 'clean-css'
 import buble from 'rollup-plugin-buble'
@@ -29,6 +29,7 @@ function camelize(str) {
 }
 
 const year = new Date().getFullYear()
+const bundleName = packageName.split('/').pop()
 const banner = `/*
 * Shards Vue v${version} (https://designrevision.com/downloads/shards-vue/)
 * Based on: Bootstrap ${dependencies.bootstrap} (https://getbootstrap.com)
@@ -65,7 +66,7 @@ module.exports = {
             },
             css(style) {
                 fs.writeFileSync(
-                    path.resolve(PATHS.DIST + `${name}.css`),
+                    path.resolve(PATHS.DIST, `${bundleName}.css`),
                     new cleanCSS().minify(style).styles
                 )
             }
@@ -80,25 +81,25 @@ module.exports = {
         {
             banner,
             format: 'cjs',
-            name: camelize(name),
-            file: path.resolve(PATHS.DIST, name + '.common.js'),
+            name: camelize(bundleName),
+            file: path.resolve(PATHS.DIST, bundleName + '.common.js'),
             sourcemap: true
         },
         {
             banner,
             format: 'umd',
-            name: camelize(name),
-            modulename: camelize(name),
+            name: camelize(bundleName),
+            modulename: camelize(bundleName),
             globals,
-            file: path.resolve(PATHS.DIST, name + '.umd.js'),
+            file: path.resolve(PATHS.DIST, bundleName + '.umd.js'),
             sourcemap: true
         },
         {
             banner,
             format: 'es',
-            name: camelize(name),
-            modulename: camelize(name),
-            file: path.resolve(PATHS.DIST, name + '.esm.js'),
+            name: camelize(bundleName),
+            modulename: camelize(bundleName),
+            file: path.resolve(PATHS.DIST, bundleName + '.esm.js'),
             sourcemap: true
         }
     ]
