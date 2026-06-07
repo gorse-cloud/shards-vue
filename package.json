@@ -2,6 +2,9 @@
   "name": "@gorse/shards-vue",
   "version": "1.0.7",
   "packageManager": "pnpm@10.33.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "description": "A free, beautiful and modern Vue.js UI kit based on the Shards UI kit.",
   "main": "dist/shards-vue.common.js",
